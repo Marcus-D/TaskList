@@ -1,0 +1,23 @@
+package LinkedTaskList;
+
+public class Task {
+	private String task = null;
+	
+	public Task() {
+		this(null);
+	}
+	
+	public Task(String task) {
+		this.task = task;
+	}
+	
+	//getters and setters for task
+	public String getTask() {
+		return task;
+	}
+	
+	public void setTask(String task) {
+		this.task = task;
+	}	
+	
+}

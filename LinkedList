@@ -1,0 +1,241 @@
+package LinkedTaskList;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class LinkedList<T> implements Iterable<T>{
+	private Node<T> head;
+	private Node<T> tail;
+	private int modCount = 0;
+	
+	private static class Node<T> {
+		private Node<T> next;
+		private T element;
+		//Scale of 1, 2, 3 << 1 is the highest
+		private int priority;
+		
+		private void setPriority(int p) {
+			priority = p;
+		}
+		
+		@SuppressWarnings("unused")
+		//TODO Determine whether getter is necessary
+		private int getPriority() {
+			return priority;
+		}
+	}
+	
+	public LinkedList() {
+		head = tail = null;
+	}
+	
+	public LinkedList(T element) {
+		modCount = 1;
+		head = new Node<T>();
+		head.element = element;
+		head.setPriority(3);
+		tail = head;
+	}
+	
+	/*
+	 * returns the size of the list
+	 * @return modCount = size
+	 */
+	public int size() {
+		return modCount;
+	}
+	
+	/*
+	 * checks to see if the list is empty
+	 * comparing it to the size
+	 * @return true if empty, false if not
+	 */
+	public boolean isEmpty() {
+		return (modCount <= 0);
+	}
+	
+	/*
+	 * returns the first element of the list
+	 * @return the head of the list
+	 */
+	public T first() {
+		return head.element;
+	}
+	
+	/*
+	 * returns the last element of the list
+	 * @return the tail of the list
+	 */
+	public T last() {
+		return tail.element;
+	}
+	
+	/*
+	 * adds an element to the end of the list
+	 * @param element being added to the end
+	 */
+	public void add(T e) {
+		if(isEmpty())
+			addToFront(e);
+		else {
+			Node<T> newNode = new Node<T>();
+			newNode.element = e;
+			newNode.next = null;
+			tail.next = newNode;
+			tail = newNode;
+			
+			modCount++;
+		}
+	}
+	
+	/*
+	 * adds element to the front of the list
+	 * @param inserted element
+	 */
+	public void addToFront (T e) {
+		Node<T> newNode = new Node<T>();
+		newNode.element = e;
+		newNode.next = head;
+		head = newNode;
+		modCount++;
+		
+		if(modCount == 1) {
+			tail = newNode;
+		}
+	}
+	
+	/*
+	 * adds element after another specified element
+	 * @param element in list, element being added
+	 */
+	public void addAfter(T n, T e) {
+		Node<T> newNode = head;
+		
+		if(contains(n) == null)
+			throw new NoSuchElementException("Empty element");
+		while(newNode.element != n)
+			newNode.next = newNode;
+		Node<T> add = new Node<T>();
+		add = newNode.next;
+		add.element = e;
+		newNode = add;
+		
+		while(add.next != null)
+			add = add.next;
+		modCount++;
+	}
+	
+	/*
+	 * searches list for specified element
+	 * returns null if the element DNE
+	 * @param target element
+	 * @return null if absent, target element if present
+	 */
+	public T contains(T e) {
+		if(isEmpty())
+			throw new NoSuchElementException("Empty List");
+		T ret = null;
+		
+		if(head.element == e)
+			ret = head.element;
+		else {
+			Node<T> temp = head;
+			while(temp.element != e && temp.next != null)
+				temp.next = temp;
+			if(temp.element != e)
+				ret = null;
+		}
+		return ret;
+	}
+	
+	/*
+	 * removes target element
+	 * @param target element
+	 * @return null if absent, removed last if present
+	 */
+	public T remove(T e) {
+		if(isEmpty())
+			throw new NoSuchElementException("Empty List");
+		
+		T ret = tail.element;
+		Node<T> last = head;
+		while(last.next != tail)
+			last.next = last;
+		tail = last;
+		tail.next = null;
+		modCount--;
+		
+		return ret;
+	}
+	
+	/*
+	 * removes the head of the list
+	 * @return head being removed
+	 */
+	public T removeFirst() {
+		if(isEmpty())
+			throw new NoSuchElementException("Empty List");
+		T ret = head.element;
+		head = head.next;
+		modCount--;
+		
+		if(isEmpty())
+			tail = null;
+		
+		return ret;
+	}
+	
+	/*
+	 * removes the tail of the list
+	 * @return tail being removed
+	 */
+	public T removeLast() {
+		if(isEmpty())
+			throw new NoSuchElementException("Empty List");
+		T ret = tail.element;
+		Node<T> last = head;
+		while(last.next != tail)
+			last.next = last;
+		tail = last;
+		tail.next = null;
+		modCount--;
+		
+		return ret;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<T> iterator() {
+		return new ListIterator<T>(head);
+	}
+
+	private class ListIterator<E> implements Iterator<E> {
+		private Node<E> current;
+
+		public ListIterator(Node<E> start) {
+			current = start;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return (current != null);
+		}
+
+		@Override
+		public E next() {
+			if(!hasNext())
+				throw new NoSuchElementException("Empty List");
+			E ret = current.element;
+			current = current.next;
+			return ret;
+		}
+
+		@Override
+		public void remove() {			
+		}
+		
+	}
+}
